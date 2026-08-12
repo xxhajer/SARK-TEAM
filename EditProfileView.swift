@@ -110,6 +110,8 @@ struct EditProfileView: View {
                     userName = tempName
                     userEmail = tempEmail
                     profileImageData = tempImageData
+                    UserDefaults.standard.set(tempName, forKey: "userName")
+                UserDefaults.standard.set(tempEmail, forKey: "userEmail")
                     dismiss()
                 }) {
                     Text("Save Changes")
