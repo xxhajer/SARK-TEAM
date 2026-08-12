@@ -174,7 +174,7 @@ struct projectDashBoard: View {
                                     VStack(spacing: 10) {
                                         RoundedRectangle(cornerRadius: 18)
                                             .fill(Color.white)
-                                            .frame(width: 160, height: 90)
+                                            .frame(width: 120, height: 90)
                                             .shadow(color: Color.black.opacity(0.06), radius: 8, x: 0, y: 4)
                                             .overlay(
                                                 Image("ideaEva")
@@ -186,12 +186,30 @@ struct projectDashBoard: View {
                                     .frame(maxWidth: .infinity)
                                 }
                                 .buttonStyle(PlainButtonStyle())
+                                
+                                NavigationLink(destination: BudgetOverviewView()) {
+                                    VStack(spacing: 10) {
+                                        RoundedRectangle(cornerRadius: 18)
+                                            .fill(Color.white)
+                                            .frame(width: 120, height: 90)
+                                            .shadow(color: Color.black.opacity(0.06), radius: 8, x: 0, y: 4)
+                                            .overlay(
+                                                Image("Wallet")
+                                            )
+                                        Text("Budget")
+                                            .font(.system(size: 16, weight: .semibold))
+                                            .foregroundColor(.black)
+                                    }
+                                    .frame(maxWidth: .infinity)
+                                }
+                                .buttonStyle(PlainButtonStyle())
+
 
                                 NavigationLink(destination: RoadmapView()) {
                                     VStack(spacing: 10) {
                                         RoundedRectangle(cornerRadius: 18)
                                             .fill(Color.white)
-                                            .frame(width: 160, height: 90)
+                                            .frame(width: 120, height: 90)
                                             .shadow(color: Color.black.opacity(0.06), radius: 8, x: 0, y: 4)
                                             .overlay(
                                                 Image("Roadmap")
