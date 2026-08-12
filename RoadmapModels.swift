@@ -2,12 +2,6 @@
 //  RoadmapModels.swift
 //  SARK
 //
-//  Created by hajer almejel on 27/02/1448 AH.
-//
-//
-//  RoadmapModels.swift
-//  SARK
-//
 //  Created by Hadeel Yahya Awaji on 24/02/1448 AH.
 //
 
@@ -18,6 +12,14 @@ struct StageObjective: Identifiable, Hashable {
     let id = UUID()
     let title: String
     var isCompleted: Bool
+}
+
+struct RoadmapResource: Identifiable, Hashable {
+    let id = UUID()
+    let title: String
+    let subtitle: String
+    let iconName: String
+    let urlString: String?
 }
 
 struct RoadmapStage: Identifiable, Hashable {
@@ -35,5 +37,5 @@ struct RoadmapStage: Identifiable, Hashable {
     let description: String
     let priorityReason: String
     var objectives: [StageObjective]
-    var resources: [String]
+    var resources: [RoadmapResource]
 }
