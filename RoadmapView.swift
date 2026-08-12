@@ -8,15 +8,16 @@ struct RoadmapView: View {
     @State private var stages: [RoadmapStage] = [
         RoadmapStage(
             title: "Validate Idea",
-            subtitle: "completed",
+            subtitle: "Completed",
             progressPercentage: 100,
             state: .completed,
             iconName: "lightbulb.fill",
-            description: "Confirm there's real demand for your idea before investing further time and resources.",
+            description: "Confirm there's real demand for a specialty coffee shop in your target neighborhood before investing further time and money.",
             priorityReason: "Foundation for all other stages",
             objectives: [
-                StageObjective(title: "Interview potential customers", isCompleted: true),
-                StageObjective(title: "Define value proposition", isCompleted: true)
+                StageObjective(title: "Interview 15+ potential customers", isCompleted: true),
+                StageObjective(title: "Define value proposition", isCompleted: true),
+                StageObjective(title: "Test concept with a pop-up or tasting event", isCompleted: true)
             ],
             resources: []
         ),
@@ -26,12 +27,13 @@ struct RoadmapView: View {
             progressPercentage: 60,
             state: .inProgress,
             iconName: "magnifyingglass",
-            description: "Understand your target market, study competitors, and gather insights to build a strong foundation.",
-            priorityReason: "High initial competition",
+            description: "Understand your target market, study nearby cafes, and gather insights on foot traffic and pricing to build a strong foundation.",
+            priorityReason: "High initial competition in the area",
             objectives: [
-                StageObjective(title: "Validate market demand.", isCompleted: true),
-                StageObjective(title: "Analyze competitors", isCompleted: true),
-                StageObjective(title: "Identify primary user persona", isCompleted: false)
+                StageObjective(title: "Validate market demand", isCompleted: true),
+                StageObjective(title: "Analyze 5 nearby competitors", isCompleted: true),
+                StageObjective(title: "Identify primary customer persona", isCompleted: false),
+                StageObjective(title: "Study peak foot-traffic hours", isCompleted: false)
             ],
             resources: []
         ),
@@ -41,20 +43,43 @@ struct RoadmapView: View {
             progressPercentage: 0,
             state: .upcoming,
             iconName: "wallet.pass",
-            description: "Decide how you'll price your product or service based on cost, value, and market positioning.",
+            description: "Decide how you'll price drinks and food based on cost, perceived value, and what similar cafes in the area charge.",
             priorityReason: "Depends on market research results",
-            objectives: [],
+            objectives: [
+                StageObjective(title: "Calculate cost per drink", isCompleted: false),
+                StageObjective(title: "Set menu price tiers", isCompleted: false),
+                StageObjective(title: "Benchmark against local competitors", isCompleted: false)
+            ],
             resources: []
         ),
         RoadmapStage(
             title: "Supplier Selection",
-            subtitle: "+ 4 more stages",
+            subtitle: "Upcoming",
             progressPercentage: 0,
             state: .upcoming,
             iconName: "archivebox",
-            description: "Identify and vet reliable suppliers for your product or ingredients.",
+            description: "Identify and vet reliable suppliers for beans, milk, pastries, and packaging.",
             priorityReason: "Needed before launch",
-            objectives: [],
+            objectives: [
+                StageObjective(title: "Source 3 quality bean roasters", isCompleted: false),
+                StageObjective(title: "Compare supplier pricing and delivery terms", isCompleted: false),
+                StageObjective(title: "Sample and select final suppliers", isCompleted: false)
+            ],
+            resources: []
+        ),
+        RoadmapStage(
+            title: "Launch Prep",
+            subtitle: "Upcoming",
+            progressPercentage: 0,
+            state: .upcoming,
+            iconName: "flag.checkered",
+            description: "Get the shop, staff, and marketing ready for opening day.",
+            priorityReason: "Final stage before doors open",
+            objectives: [
+                StageObjective(title: "Hire and train baristas", isCompleted: false),
+                StageObjective(title: "Set up POS and inventory systems", isCompleted: false),
+                StageObjective(title: "Plan opening-week promotions", isCompleted: false)
+            ],
             resources: []
         )
     ]
@@ -113,6 +138,9 @@ struct RoadmapView: View {
             }
         }
         .navigationBarHidden(true)
+        .onChange(of: stages) { _, _ in
+            unlockNextStageIfNeeded()
+        }
     }
 
     // MARK: Header Bar
@@ -210,7 +238,7 @@ struct RoadmapView: View {
         .padding(.vertical, 10)
     }
 
-    // MARK: Timeline Steps Section
+    // MARK: Timeline Steps Section (shows ALL stages, no truncation)
     private var timelineSection: some View {
         VStack(alignment: .leading, spacing: 14) {
             ForEach(stages.indices, id: \.self) { index in
@@ -231,6 +259,26 @@ struct RoadmapView: View {
                 }
                 .buttonStyle(PlainButtonStyle())
             }
+        }
+    }
+
+    // MARK: - Stage Unlocking
+    // Runs after any change to `stages` (e.g. an objective toggled to 100%
+    // inside RoadmapDetailsView, which writes back through the binding).
+    // If a stage just became .completed and the very next one is still
+    // .upcoming, flip that next one to .inProgress with a clean, empty
+    // progress state.
+    private func unlockNextStageIfNeeded() {
+        for index in stages.indices {
+            guard stages[index].state == .completed else { continue }
+
+            let nextIndex = index + 1
+            guard stages.indices.contains(nextIndex) else { continue }
+            guard stages[nextIndex].state == .upcoming else { continue }
+
+            stages[nextIndex].state = .inProgress
+            stages[nextIndex].progressPercentage = 0
+            stages[nextIndex].subtitle = "In progress - 0%"
         }
     }
 }
