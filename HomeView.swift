@@ -104,7 +104,7 @@ struct HomeView: View {
                 icon: "plus",
                 title: "New Business",
                 description: "Start a new business\nwith AI guidance",
-                destination: AnyView(MyBusinessesView())
+                destination: AnyView(StartFromScratchView())
             )
         }
         .padding(.horizontal, 24)
