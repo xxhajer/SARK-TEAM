@@ -39,12 +39,13 @@ struct RoadmapDetailsView: View {
         return Int((Double(completedCount) / Double(currentStage.objectives.count)) * 100)
     }
 
-    // CHANGE: This is the actual fix. Whenever an objective is toggled,
-    // this recalculates the percentage AND writes it — plus a matching
-    // subtitle and state — back onto `currentStage` itself. Because
-    // `currentStage` is a Binding into RoadmapView's `stages` array,
-    // this update is visible immediately on the timeline (progress bar,
-    // circular gauge, stage card subtitle) as soon as you navigate back.
+    // Whenever an objective is toggled, this recalculates the percentage
+    // AND writes it — plus a matching subtitle and state — back onto
+    // `currentStage` itself. Because `currentStage` is a Binding into
+    // RoadmapView's `stages` array, this update is visible immediately
+    // on the timeline (progress bar, circular gauge, stage card subtitle)
+    // as soon as you navigate back. RoadmapView's own onChange then picks
+    // this up to unlock the next stage if this one just hit 100%.
     private func syncStageProgressFromObjectives() {
         guard !currentStage.objectives.isEmpty else { return }
 
@@ -55,7 +56,7 @@ struct RoadmapDetailsView: View {
 
         if percentage == 100 {
             currentStage.state = .completed
-            currentStage.subtitle = "completed"
+            currentStage.subtitle = "Completed"
         } else if percentage > 0 {
             currentStage.state = .inProgress
             currentStage.subtitle = "In progress - \(percentage)%"
@@ -66,7 +67,6 @@ struct RoadmapDetailsView: View {
     }
 
     var body: some View {
-        // CHANGE: removed the local ZStack + BottomNavBarView.
         // CustomTabBar is rendered once, globally, by MainTabView —
         // this screen just scrolls its content underneath it.
         ZStack {
@@ -92,10 +92,7 @@ struct RoadmapDetailsView: View {
     }
 
     // MARK: - Header
-    // Was: back arrow + title + a "Timeline / Details" segment control.
-    // The "Timeline" button just called dismiss() — same thing the back
-    // arrow already does — so it was a redundant second way to go back.
-    // Removed it; back arrow is now the only way back to the timeline.
+    // Back arrow is the only way back to the timeline.
     private var headerSegmentSection: some View {
         HStack(spacing: 16) {
             Button(action: { dismiss() }) {
@@ -238,28 +235,28 @@ struct RoadmapDetailsView: View {
                 VStack(alignment: .leading, spacing: 12) {
                     ForEach(currentStage.objectives.indices, id: \.self) { index in
                         Button(action: {
-                            // CHANGE: toggle the objective AND immediately
-                            // resync progress/subtitle/state on the stage.
+                            // Toggle the objective AND immediately resync
+                            // progress/subtitle/state on the stage.
                             withAnimation(.spring()) {
                                 currentStage.objectives[index].isCompleted.toggle()
                                 syncStageProgressFromObjectives()
                             }
                         }) {
-                                    HStack(spacing: 12) {
-                                                        Image(systemName: currentStage.objectives[index].isCompleted ? "checkmark.circle.fill" : "circle")
-                                                            .font(.system(size: 22))
-                                                            .foregroundColor(currentStage.objectives[index].isCompleted ? Color("appGreen") : Color("faded text"))
+                            HStack(spacing: 12) {
+                                Image(systemName: currentStage.objectives[index].isCompleted ? "checkmark.circle.fill" : "circle")
+                                    .font(.system(size: 22))
+                                    .foregroundColor(currentStage.objectives[index].isCompleted ? Color("appGreen") : Color("faded text"))
 
-                                                        Text(currentStage.objectives[index].title)
-                                                            .font(.system(size: 15, weight: .medium))
-                                                            .foregroundColor(Color("priemary texts"))
-                                                            .strikethrough(currentStage.objectives[index].isCompleted, color: Color("faded text"))
+                                Text(currentStage.objectives[index].title)
+                                    .font(.system(size: 15, weight: .medium))
+                                    .foregroundColor(Color("priemary texts"))
+                                    .strikethrough(currentStage.objectives[index].isCompleted, color: Color("faded text"))
 
-                                                        Spacer()
-                                                    }
-                                                    .contentShape(Rectangle())   // ← NEW LINE
-                                                }
-                                                .buttonStyle(PlainButtonStyle())
+                                Spacer()
+                            }
+                            .contentShape(Rectangle())
+                        }
+                        .buttonStyle(PlainButtonStyle())
                     }
                 }
             }
@@ -288,10 +285,71 @@ struct RoadmapDetailsView: View {
                         .foregroundColor(Color("priemary texts"))
                 }
             }
+
+            if isResourcesExpanded {
+                Divider()
+
+                if currentStage.resources.isEmpty {
+                    resourcesEmptyState
+                } else {
+                    VStack(spacing: 12) {
+                        ForEach(currentStage.resources) { resource in
+                            resourceRow(resource)
+                        }
+                    }
+                }
+            }
         }
         .padding(20)
         .background(Color.white)
         .cornerRadius(20)
+    }
+
+    private var resourcesEmptyState: some View {
+        HStack(spacing: 12) {
+            ZStack {
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(Color.black.opacity(0.05))
+                    .frame(width: 40, height: 40)
+                Image(systemName: "tray")
+                    .foregroundColor(Color("faded text"))
+            }
+            VStack(alignment: .leading, spacing: 2) {
+                Text("No resources yet")
+                    .font(.system(size: 15, weight: .semibold))
+                    .foregroundColor(Color("faded text"))
+                Text("We'll add helpful guides as you progress")
+                    .font(.system(size: 13))
+                    .foregroundColor(Color("faded text").opacity(0.8))
+            }
+            Spacer()
+        }
+        .padding(.vertical, 6)
+    }
+
+    private func resourceRow(_ resource: RoadmapResource) -> some View {
+        HStack(spacing: 12) {
+            ZStack {
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(Color("appOrange").opacity(0.12))
+                    .frame(width: 40, height: 40)
+                Image(systemName: resource.iconName)
+                    .foregroundColor(Color("appOrange"))
+            }
+            VStack(alignment: .leading, spacing: 2) {
+                Text(resource.title)
+                    .font(.system(size: 15, weight: .semibold))
+                    .foregroundColor(Color("priemary texts"))
+                Text(resource.subtitle)
+                    .font(.system(size: 13))
+                    .foregroundColor(Color("faded text"))
+            }
+            Spacer()
+            Image(systemName: "chevron.right")
+                .font(.system(size: 12, weight: .semibold))
+                .foregroundColor(Color("faded text"))
+        }
+        .padding(.vertical, 6)
     }
 }
 
@@ -316,7 +374,10 @@ struct RoadmapDetailsView: View {
                         StageObjective(title: "Analyze competitors", isCompleted: true),
                         StageObjective(title: "Identify primary user persona", isCompleted: false)
                     ],
-                    resources: []
+                    resources: [
+                        RoadmapResource(title: "Local Coffee Market Report 2026", subtitle: "PDF guide", iconName: "doc.text", urlString: nil),
+                        RoadmapResource(title: "How to run customer interviews", subtitle: "Article", iconName: "text.book.closed", urlString: nil)
+                    ]
                 )
             )
         )
