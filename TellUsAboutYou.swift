@@ -9,6 +9,7 @@ struct TellUsAboutYouView: View {
     @State private var selectedBudget = "Select budget"
     @State private var selectedExperience = "Select experience"
     @State private var selectedGoal = "Select business goal"
+    @State private var selectedLocation = "Select location" // الخيار الجديد للموقع
     @State private var selectedTimeline = "Select timeline"
     @State private var selectedRisk = "Select risk tolerance"
     
@@ -16,6 +17,7 @@ struct TellUsAboutYouView: View {
     let budgetOptions = ["Under 5,000 SAR", "5,000 SAR - 10,000 SAR", "10,000 SAR - 25,000 SAR", "25,000 SAR - 50,000 SAR", "50,000 SAR+"]
     let experienceOptions = ["Beginner", "Intermediate", "Advanced"]
     let goalOptions = ["Validate a new idea", "Build a scalable business", "Side income / Passive business", "Fast ROI"]
+    let locationOptions = ["Riyadh", "Jeddah", "Dammam", "Not decided yet"] // خيارات الموقع المطلوبة
     let timelineOptions = ["Under 1 month", "1 - 3 months", "3 - 6 months", "6+ months"]
     let riskOptions = ["Low", "Medium", "High"]
     
@@ -23,6 +25,7 @@ struct TellUsAboutYouView: View {
         selectedBudget != "Select budget" &&
         selectedExperience != "Select experience" &&
         selectedGoal != "Select business goal" &&
+        selectedLocation != "Select location" && // التحقق من اختيار الموقع
         selectedTimeline != "Select timeline" &&
         selectedRisk != "Select risk tolerance"
     }
@@ -60,9 +63,16 @@ struct TellUsAboutYouView: View {
                     
                     VStack(spacing: 14) {
                         CustomPickerRow(iconType: .asset("budgetIcon", Color("appGreen")), title: "Budget", placeholder: "Select budget", selection: $selectedBudget, options: budgetOptions)
+                        
                         CustomPickerRow(iconType: .asset("experienceIcon", Color("appOrange")), title: "Experience", placeholder: "Select experience", selection: $selectedExperience, options: experienceOptions)
+                        
                         CustomPickerRow(iconType: .system("target", Color("appGreen")), title: "Business Goal", placeholder: "Select business goal", selection: $selectedGoal, options: goalOptions)
+                        
+                        // الكرت الجديد: Location تحت Business Goal مباشرة
+                        CustomPickerRow(iconType: .system("mappin.and.ellipse", Color("appOrange")), title: "Location", placeholder: "Select location", selection: $selectedLocation, options: locationOptions)
+                        
                         CustomPickerRow(iconType: .system("timer", Color("appGreen")), title: "Timeline", placeholder: "Select timeline", selection: $selectedTimeline, options: timelineOptions)
+                        
                         CustomPickerRow(iconType: .system("exclamationmark.triangle.fill", Color("appOrange")), title: "Risk Tolerance", placeholder: "Select risk tolerance", selection: $selectedRisk, options: riskOptions)
                     }
                     
